@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">All Products</h2>
+
+<div class="row">
+
+    {% for product in products %}
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <img src="{{ product.image.url }}" class="card-img-top" style="height:200px; object-fit:cover;" alt="{{ product.name }}">
+
+            <div class="card-body">
+                <h5>{{ product.name }}</h5>
+                <p>{{ product.brand }}</p>
+                <p>&#8377;{{ product.price }}</p>
+                <div class="star-rating mb-2">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= product.avg_rating|default:0 %}
+                            &#9733;
+                        {% else %}
+                            &#9734;
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <a href="{% url 'product_detail' product.id %}" class="btn btn-primary btn-sm">View</a>
+            </div>
+
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+{% endblock %}

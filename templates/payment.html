@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Complete Payment | ElectroStore{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-md-5">
+                <h2 class="h3 mb-2">Complete your payment</h2>
+                <p class="text-muted mb-4">Razorpay test checkout is ready for this order.</p>
+
+                <div class="rounded border p-3 bg-light mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Amount</span>
+                        <strong>Rs. {{ total_rupees }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Razorpay Order ID</span>
+                        <code>{{ payment_id }}</code>
+                    </div>
+                </div>
+
+                <div id="payment-help" class="alert alert-warning d-none" role="alert"></div>
+
+                <div class="d-flex gap-2 flex-wrap">
+                    <button id="pay-btn" class="btn btn-primary">Pay with Razorpay</button>
+                    <a href="{% url 'cart' %}" class="btn btn-outline-secondary">Back to cart</a>
+                </div>
+
+                <p class="small text-muted mt-4 mb-0">
+                    If Razorpay says international cards are not supported in test mode, use Razorpay's Indian
+                    test cards or test UPI IDs, or enable international cards in your Razorpay dashboard.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const payButton = document.getElementById('pay-btn');
+    const paymentHelp = document.getElementById('payment-help');
+    const successUrl = "{% url 'payment_success' %}";
+
+    const options = {
+        key: "{{ razorpay_key|escapejs }}",
+        amount: Number("{{ payment_amount }}"),
+        currency: "INR",
+        name: "ElectroStore",
+        description: "Order Payment",
+        order_id: "{{ payment_id|escapejs }}",
+        prefill: {
+            name: "{{ customer_name|default:request.user.username|escapejs }}",
+            email: "{{ customer_email|default:request.user.email|escapejs }}",
+            contact: "{{ customer_contact|default:''|escapejs }}"
+        },
+        notes: {
+            customer: "{{ request.user.username|escapejs }}"
+        },
+        retry: {
+            enabled: true,
+            max_count: 2
+        },
+        theme: {
+            color: "#1f3b84"
+        },
+        handler: function (response) {
+            const params = new URLSearchParams({
+                payment_id: response.razorpay_payment_id,
+                order_id: response.razorpay_order_id,
+                signature: response.razorpay_signature
+            });
+            window.location.href = successUrl + "?" + params.toString();
+        }
+    };
+
+    const razorpayCheckout = new Razorpay(options);
+
+    razorpayCheckout.on('payment.failed', function (response) {
+        const error = response.error || {};
+        const description = error.description || 'Payment could not be completed. Please try again.';
+        const extraHelp = description.includes('International cards are not supported')
+            ? ' For test mode, use Razorpay test instruments or enable international cards on the account.'
+            : '';
+
+        console.error('Razorpay payment failed:', error);
+        paymentHelp.textContent = description + extraHelp;
+        paymentHelp.classList.remove('d-none');
+    });
+
+    payButton.addEventListener('click', function (event) {
+        event.preventDefault();
+        paymentHelp.classList.add('d-none');
+        razorpayCheckout.open();
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+body {
+    background-color: #f8f9fa;
+}
+
+h2 {
+    font-weight: bold;
+}
+.card:hover {
+    transform: scale(1.03);
+    transition: 0.3s;
+}
+/* Star Rating */
+.star-rating {
+    color: #ffc107;
+    font-size: 18px;
+}
+
+.star-rating-ui .star {
+    font-size: 30px;
+    color: #ccc;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.star-rating-ui .star.active {
+    color: #ffc107;
+}
+/* Hover effect for star rating */
+.star-rating-ui .star {
+    font-size: 30px;
+    color: #ccc;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.star-rating-ui .star.active {
+    color: #ffc107;
+}
+
+/* ⭐ Hover preview effect */
+.star-rating-ui .star:hover,
+.star-rating-ui .star:hover ~ .star {
+    color: #ffdb70;
+}

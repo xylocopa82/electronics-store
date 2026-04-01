@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }} | ElectroStore{% endblock %}
+
+{% block content %}
+
+<div class="row">
+
+    <div class="col-md-6">
+        <img src="{{ product.image.url }}" class="img-fluid" alt="{{ product.name }}">
+    </div>
+
+    <div class="col-md-6">
+        <h2>{{ product.name }}</h2>
+        <p class="text-muted">{{ product.brand }}</p>
+        <h4 class="text-success">&#8377;{{ product.price }}</h4>
+
+        <p>⭐ {{ avg_rating|floatformat:1 }} ({{ review_count }} reviews)</p>
+
+        <p>{{ product.description }}</p>
+        <p><strong>Stock:</strong> {{ product.stock }}</p>
+
+        <hr>
+        <h4>Rate this product</h4>
+
+        {% if user_review %}
+        <p>Your Rating: ⭐ {{ user_review.rating }}</p>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+        <form method="POST" action="{% url 'add_review' product.id %}">
+            {% csrf_token %}
+
+            <div class="star-rating-ui mb-3">
+                <span class="star" data-value="1">&#9733;</span>
+                <span class="star" data-value="2">&#9733;</span>
+                <span class="star" data-value="3">&#9733;</span>
+                <span class="star" data-value="4">&#9733;</span>
+                <span class="star" data-value="5">&#9733;</span>
+            </div>
+
+            <input type="hidden" name="rating" id="rating-value" value="{{ user_review.rating|default:'' }}">
+
+            <textarea name="comment" class="form-control mb-3" rows="3"
+                placeholder="Write a short review (optional)">{{ user_review.comment|default:'' }}</textarea>
+
+            <button class="btn btn-success btn-sm" id="submit-rating" disabled>
+                Submit Rating
+            </button>
+        </form>
+        {% else %}
+        <p><a href="{% url 'login' %}">Login</a> to rate this product.</p>
+        {% endif %}
+
+        <form method="POST" action="{% url 'add_to_cart' product.id %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-dark">Add to Cart</button>
+        </form>
+
+        {% if user.is_authenticated %}
+        <form method="POST" action="{% url 'add_to_wishlist' product.id %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger">Add to Wishlist</button>
+        </form>
+        {% endif %}
+
+    </div>
+
+</div>
+
+<!-- ✅ Reviews Section -->
+<hr>
+
+<h4 class="mt-4">Customer Reviews</h4>
+
+{% for review in reviews %}
+<div class="card p-3 mb-3 shadow-sm">
+
+    <div class="mb-1 text-warning">
+        {% for i in "12345" %}
+            {% if forloop.counter <= review.rating %}
+                ★
+            {% else %}
+                ☆
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    {% if review.comment %}
+        <p class="mb-1">{{ review.comment }}</p>
+    {% endif %}
+
+    <small class="text-muted">
+        👤 {{ review.user.username }} • {{ review.created_at|date:"M d, Y" }}
+    </small>
+
+</div>
+
+{% empty %}
+<p class="text-muted">No reviews yet. Be the first to review!</p>
+{% endfor %}
+
+{% endblock %}

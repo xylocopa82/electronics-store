@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">My Profile</h2>
+
+    <div class="row">
+
+        <!-- LEFT: Profile Card -->
+        <div class="col-md-4">
+            <div class="card shadow-sm p-3 text-center">
+
+                {% if form.instance.profile_image %}
+                    <img src="{{ form.instance.profile_image.url }}" 
+                         class="rounded-circle mb-3" 
+                         style="width:120px; height:120px; object-fit:cover;">
+                {% else %}
+                    <img src="https://via.placeholder.com/120" 
+                         class="rounded-circle mb-3">
+                {% endif %}
+
+                <h5>{{ user.username }}</h5>
+                <p class="text-muted">{{ user.email }}</p>
+
+            </div>
+        </div>
+
+        <!-- RIGHT: Forms -->
+        <div class="col-md-8">
+
+            <!-- Update Profile -->
+            <div class="card shadow-sm p-3 mb-4">
+                <h5 class="mb-3">Update Profile</h5>
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        {{ form.phone }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Profile Image</label>
+                        {{ form.profile_image }}
+                    </div>
+
+                    <button name="update_profile" class="btn btn-dark">
+                        Update Profile
+                    </button>
+                </form>
+            </div>
+
+            <!-- Add Address -->
+            <div class="card shadow-sm p-3">
+                <h5 class="mb-3">Add Address</h5>
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            {{ address_form.name.label_tag }}
+                            {{ address_form.name }}
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            {{ address_form.phone.label_tag }}
+                            {{ address_form.phone }}
+                        </div>
+
+                        <div class="col-md-12 mb-2">
+                            {{ address_form.address_line.label_tag }}
+                            {{ address_form.address_line }}
+                        </div>
+
+                        <div class="col-md-4 mb-2">
+                            {{ address_form.city.label_tag }}
+                            {{ address_form.city }}
+                        </div>
+
+                        <div class="col-md-4 mb-2">
+                            {{ address_form.state.label_tag }}
+                            {{ address_form.state }}
+                        </div>
+
+                        <div class="col-md-4 mb-2">
+                            {{ address_form.pincode.label_tag }}
+                            {{ address_form.pincode }}
+                        </div>
+                    </div>
+
+                    <button name="add_address" class="btn btn-primary">
+                        Add Address
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Address List -->
+    <div class="mt-4">
+        <h5>Your Addresses</h5>
+
+        <div class="row">
+            {% for addr in addresses %}
+            <div class="col-md-4">
+                <div class="card p-3 mb-3 shadow-sm">
+
+                    <strong>{{ addr.name }}</strong><br>
+                    {{ addr.address_line }}<br>
+                    {{ addr.city }}, {{ addr.state }}<br>
+                    {{ addr.pincode }}<br>
+                    📞 {{ addr.phone }}
+
+                    {% if addr.is_default %}
+                        <span class="badge bg-success mt-2">Default</span>
+                    {% endif %}
+
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted">No addresses added</p>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

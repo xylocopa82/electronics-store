@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Select Delivery Address</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    {% for addr in addresses %}
+    <div class="card p-3 mb-2">
+        <input type="radio" name="address" value="{{ addr.id }}" required>
+
+        <strong>{{ addr.name }}</strong><br>
+        {{ addr.address_line }}<br>
+        {{ addr.city }}, {{ addr.state }} - {{ addr.pincode }}
+    </div>
+    {% endfor %}
+
+    <button class="btn btn-success">Place Order</button>
+
+</form>
+
+{% endblock %}

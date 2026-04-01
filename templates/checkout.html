@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if success %}
+<div class="alert alert-success text-center mt-3">
+    🎉 Payment Successful! Your order has been placed.
+</div>
+{% endif %}
+<h2>Order Placed Successfully 🎉</h2>
+<p>Your order has been placed.</p>
+
+<a href="/" class="btn btn-dark">Continue Shopping</a>
+
+{% endblock %}
