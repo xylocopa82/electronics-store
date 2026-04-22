@@ -1,12 +1,45 @@
 {% extends 'base.html' %}
+
+{% block title %}Register | ElectroStore{% endblock %}
+
 {% block content %}
 
-<h2>Register</h2>
+<div class="auth-wrapper">
+  <div class="auth-card" style="max-width:480px;">
 
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button class="btn btn-dark">Register</button>
-</form>
+    <!-- Logo -->
+    <div class="text-center mb-4">
+      <span style="font-size:2rem;">⚡</span>
+      <h3 class="mt-2">Create Account</h3>
+      <p class="text-muted" style="font-size:0.9rem;">Join thousands of happy customers</p>
+    </div>
+
+    <form method="POST">
+      {% csrf_token %}
+
+      {% for field in form %}
+      <div class="mb-3">
+        <label class="form-label">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+        <small class="text-danger" style="font-size:0.8rem;">{{ field.errors }}</small>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <button class="btn btn-primary w-100 mt-2" style="padding:13px; font-size:1rem;">
+        Create Account &nbsp;→
+      </button>
+    </form>
+
+    <hr style="border-color:var(--border); margin:1.5rem 0;">
+
+    <p class="text-center mb-0" style="font-size:0.9rem; color:var(--text-muted);">
+      Already have an account?
+      <a href="{% url 'login' %}" style="color:var(--accent); font-weight:600;">Sign in</a>
+    </p>
+
+  </div>
+</div>
 
 {% endblock %}

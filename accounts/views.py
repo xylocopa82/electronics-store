@@ -3,51 +3,51 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.views.decorators.http import require_POST
 
 from .forms import AddressForm, CustomerForm, RegisterForm
 from .models import Address, Customer
 
-def register_view(request):
-    form = RegisterForm()
+from django.contrib.auth.forms import UserCreationForm
+from django.shortcuts import render, redirect
+from django.contrib import messages
 
+def register(request):
     if request.method == 'POST':
-        form = RegisterForm(request.POST)
+        form = UserCreationForm(request.POST)
+
         if form.is_valid():
             user = form.save()
-            login(request, user)
-            return redirect('home')
+            messages.success(request, "Account created successfully. Please login.")
+            return redirect('login')
+        else:
+            messages.error(request, "Please fix the errors below.")
+
+    else:
+        form = UserCreationForm()
 
     return render(request, 'register.html', {'form': form})
 
 
 def login_view(request):
-    next_url = request.POST.get('next') or request.GET.get('next', '')
-
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
-        password = request.POST.get('password', '')
+        password = request.POST.get('password', '').strip()
 
         user = authenticate(request, username=username, password=password)
 
-        if user:
+        if user is not None:
             login(request, user)
 
-            if next_url and url_has_allowed_host_and_scheme(
-                next_url,
-                allowed_hosts={request.get_host()},
-                require_https=request.is_secure(),
-            ):
-                return redirect(next_url)
+            # 🔥 FORCE SESSION SAVE
+            request.session.save()
 
             return redirect('home')
+        else:
+            messages.error(request, "Invalid credentials")
 
-        messages.error(request, 'Invalid username or password.')
+    return render(request, 'login.html')
 
-    return render(request, 'login.html', {'next_url': next_url})
-
-
-@require_POST
+@login_required
 def logout_view(request):
     logout(request)
     return redirect('home')

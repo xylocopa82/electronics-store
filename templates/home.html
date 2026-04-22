@@ -4,49 +4,206 @@
 
 {% block content %}
 
-<div class="bg-dark text-white p-5 rounded mb-4">
-    <h1>Latest Electronics & Gadgets</h1>
-    <p>Discover top deals on mobiles, laptops and accessories</p>
-</div>
+<!-- ================================================================
+     HERO SECTION — Split: Text left | Product visual right
+     ================================================================ -->
+<div class="hero-section mb-0">
 
-<h2 class="mb-4">Latest Products</h2>
+  <!-- LEFT: Text -->
+  <div class="hero-content">
 
-<div class="row">
-
-    {% for product in products %}
-    <div class="col-md-3 mb-4">
-        <div class="card h-100 shadow-sm border-0">
-            <img src="{{ product.image.url }}" class="card-img-top" style="height:200px; object-fit:cover;" alt="{{ product.name }}">
-
-            <div class="card-body">
-                <h5 class="card-title">{{ product.name }}</h5>
-                <p class="text-muted">{{ product.brand }}</p>
-                <p class="fw-bold text-success">&#8377;{{ product.price }}</p>
-                <p class="mb-1">
-    ⭐ {{ product.avg_rating|floatformat:1 }} ({{ product.review_count }})
-</p>
-                <div class="star-rating">
-                    {% for i in "12345" %}
-                        {% if forloop.counter <= product.avg_rating|default:0 %}
-                            &#9733;
-                        {% else %}
-                            &#9734;
-                        {% endif %}
-                    {% endfor %}
-                </div>
-
-                <a href="{% url 'product_detail' product.id %}" class="btn btn-dark btn-sm">
-                    View Details
-                </a>
-            </div>
-
-        </div>
+    <div class="hero-tag">
+      ⚡ Premium Electronics Store
     </div>
 
-    {% empty %}
-    <p class="text-muted">No products available</p>
+    <h1>Top Tech Gear<br>for <span class="hero-accent">Your Lifestyle</span></h1>
 
-    {% endfor %}
+    <p>Explore the latest gadgets & accessories.<br>Fast delivery. Best prices. Easy returns.</p>
+
+    <div class="hero-cta-wrap">
+      <a href="/products/" class="btn-hero-primary">
+        Shop Now &nbsp;→
+      </a>
+      <a href="/products/" class="btn-hero-secondary">
+        New Arrivals
+      </a>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: CSS Product Mockup -->
+  <div class="hero-visual">
+    <div class="hero-product-mockup">
+      <div class="hero-mock-grid">
+
+        <div class="hero-mock-item">
+          <span class="hero-mock-icon">🎧</span>
+          <span class="hero-mock-label">Headphones</span>
+          <span class="hero-mock-price">₹2,499</span>
+        </div>
+
+        <div class="hero-mock-item">
+          <span class="hero-mock-icon">⌚</span>
+          <span class="hero-mock-label">Smartwatch</span>
+          <span class="hero-mock-price">₹4,999</span>
+        </div>
+
+        <div class="hero-mock-item">
+          <span class="hero-mock-icon">📱</span>
+          <span class="hero-mock-label">Smartphone</span>
+          <span class="hero-mock-price">₹14,999</span>
+        </div>
+
+        <div class="hero-mock-item">
+          <span class="hero-mock-icon">💻</span>
+          <span class="hero-mock-label">Laptop</span>
+          <span class="hero-mock-price">₹49,999</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================================================================
+     FEATURES STRIP — Free Shipping | Money Back | 24/7 Support
+     ================================================================ -->
+<div class="features-strip">
+
+  <div class="feature-item">
+    <div class="feature-icon">🚚</div>
+    <div class="feature-text">
+      <strong>Free Shipping</strong>
+      <span>On orders over ₹999</span>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-icon">🔄</div>
+    <div class="feature-text">
+      <strong>30-Day Returns</strong>
+      <span>Money back guarantee</span>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-icon">🔒</div>
+    <div class="feature-text">
+      <strong>Secure Payment</strong>
+      <span>100% protected</span>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-icon">💬</div>
+    <div class="feature-text">
+      <strong>24/7 Support</strong>
+      <span>Always here to help</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================================================================
+     STATS ROW
+     ================================================================ -->
+<div class="row g-3 mb-5">
+  <div class="col-6 col-md-3">
+    <div class="stat-box">
+      <div class="stat-value">500+</div>
+      <div class="stat-label">Products</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-box">
+      <div class="stat-value">24h</div>
+      <div class="stat-label">Delivery</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-box">
+      <div class="stat-value">10K+</div>
+      <div class="stat-label">Customers</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-box">
+      <div class="stat-value">4.9★</div>
+      <div class="stat-label">Rating</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     FEATURED PRODUCTS GRID
+     ================================================================ -->
+<div class="section-header mb-4">
+  <h3>🔥 Featured Products</h3>
+</div>
+
+<div class="row g-4">
+
+  {% for product in products %}
+  <div class="col-lg-3 col-md-4 col-sm-6">
+
+    <div class="card product-card h-100">
+
+      <!-- IMAGE -->
+      <div class="img-wrap">
+        <img src="{{ product.image.url }}"
+             class="card-img-top"
+             alt="{{ product.name }}">
+        <span class="img-badge">New</span>
+        <!-- Quick view overlay -->
+        <div class="img-overlay">
+          <a href="{% url 'product_detail' product.id %}" class="img-overlay-text">Quick View</a>
+        </div>
+      </div>
+
+      <!-- BODY -->
+      <div class="card-body d-flex flex-column p-3">
+
+        <h6 class="product-name mb-1">{{ product.name }}</h6>
+        <p class="product-brand mb-2">{{ product.brand }}</p>
+
+        <!-- RATING -->
+        <div class="text-warning mb-2" style="font-size:0.82rem; letter-spacing:1px;">
+          {% for i in "12345" %}
+            {% if forloop.counter <= product.avg_rating|default:0 %}★{% else %}☆{% endif %}
+          {% endfor %}
+          <span style="color:#475569; font-size:0.73rem; margin-left:2px;">({{ product.review_count }})</span>
+        </div>
+
+        <p class="product-price mb-3 mt-auto">₹{{ product.price }}</p>
+
+        <!-- MODERN BUTTONS -->
+        <div class="product-card-actions">
+          <form method="POST" action="/add-to-cart/{{ product.id }}/" style="flex:1; display:flex;">
+            {% csrf_token %}
+            <button class="btn-cart">🛒 Add to Cart</button>
+          </form>
+          {% if user.is_authenticated %}
+          <form method="POST" action="/add-to-wishlist/{{ product.id }}/" style="display:flex;">
+            {% csrf_token %}
+            <button type="submit" class="btn-wishlist-icon" title="Add to Wishlist">❤</button>
+          </form>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+  {% empty %}
+  <div class="col-12">
+    <div class="empty-state">
+      <span class="empty-icon">📦</span>
+      <h5>No products available</h5>
+      <p style="color:#475569;">Check back soon for new arrivals.</p>
+    </div>
+  </div>
+  {% endfor %}
 
 </div>
 

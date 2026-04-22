@@ -1,9 +1,23 @@
 {% extends 'base.html' %}
 
+{% block title %}Payment Failed | ElectroStore{% endblock %}
+
 {% block content %}
-<div class="text-center mt-5">
-    <h2 class="text-danger">❌ Payment Failed</h2>
-    <p>Please try again or use a different payment method.</p>
-    <a href="/cart/" class="btn btn-dark">Back to Cart</a>
+
+<div class="failed-wrap">
+
+  <span class="failed-icon">❌</span>
+
+  <h2 class="fw-bold mb-2" style="color:var(--danger);">Payment Failed</h2>
+  <p class="text-muted mb-4" style="max-width:380px; margin:0 auto 2rem;">
+    Something went wrong. Please try again or use a different payment method.
+  </p>
+
+  <div class="d-flex justify-content-center gap-3 flex-wrap">
+    <a href="/cart/" class="btn btn-dark" style="padding:12px 28px;">🛒 Back to Cart</a>
+    <a href="/products/" class="btn btn-outline-secondary" style="padding:12px 28px;">Browse Products</a>
+  </div>
+
 </div>
+
 {% endblock %}

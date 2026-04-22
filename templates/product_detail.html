@@ -1,102 +1,130 @@
 {% extends 'base.html' %}
+
 {% block title %}{{ product.name }} | ElectroStore{% endblock %}
 
 {% block content %}
 
-<div class="row">
+<div class="row g-4 mb-5">
 
-    <div class="col-md-6">
-        <img src="{{ product.image.url }}" class="img-fluid" alt="{{ product.name }}">
+  <!-- PRODUCT IMAGE -->
+  <div class="col-md-6">
+    <div class="product-detail-img">
+      <img src="{{ product.image.url }}"
+           alt="{{ product.name }}"
+           style="width:100%; max-height:420px; object-fit:cover;">
+    </div>
+  </div>
+
+  <!-- PRODUCT DETAILS -->
+  <div class="col-md-6">
+
+    <!-- Breadcrumb feel -->
+    <p style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.5rem;">
+      Electronics &rsaquo; {{ product.brand }}
+    </p>
+
+    <h2 class="fw-bold mb-1">{{ product.name }}</h2>
+
+    <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">{{ product.brand }}</p>
+
+    <!-- RATING -->
+    <div class="text-warning mb-3" style="font-size:1rem;">
+      {% for i in "12345" %}
+        {% if forloop.counter <= avg_rating|default:0 %}★{% else %}☆{% endif %}
+      {% endfor %}
+      <span style="color:var(--text-muted); font-size:0.85rem; margin-left:6px;">({{ review_count }} reviews)</span>
     </div>
 
-    <div class="col-md-6">
-        <h2>{{ product.name }}</h2>
-        <p class="text-muted">{{ product.brand }}</p>
-        <h4 class="text-success">&#8377;{{ product.price }}</h4>
+    <!-- PRICE -->
+    <div class="price mb-3">₹{{ product.price }}</div>
 
-        <p>⭐ {{ avg_rating|floatformat:1 }} ({{ review_count }} reviews)</p>
+    <!-- STOCK -->
+    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">
+      <span style="display:inline-block; width:8px; height:8px; background:var(--success); border-radius:50%; margin-right:6px;"></span>
+      In Stock: {{ product.stock }} units
+    </p>
 
-        <p>{{ product.description }}</p>
-        <p><strong>Stock:</strong> {{ product.stock }}</p>
+    <hr style="border-color:var(--border);">
 
-        <hr>
-        <h4>Rate this product</h4>
+    <!-- ADD TO CART -->
+    <form method="POST" action="/add-to-cart/{{ product.id }}/" class="mb-3">
+      {% csrf_token %}
+      <button class="btn-cart" style="padding:14px 20px; font-size:1rem;">
+        🛒 Add to Cart
+      </button>
+    </form>
 
-        {% if user_review %}
-        <p>Your Rating: ⭐ {{ user_review.rating }}</p>
-        {% endif %}
-
-        {% if user.is_authenticated %}
-        <form method="POST" action="{% url 'add_review' product.id %}">
-            {% csrf_token %}
-
-            <div class="star-rating-ui mb-3">
-                <span class="star" data-value="1">&#9733;</span>
-                <span class="star" data-value="2">&#9733;</span>
-                <span class="star" data-value="3">&#9733;</span>
-                <span class="star" data-value="4">&#9733;</span>
-                <span class="star" data-value="5">&#9733;</span>
-            </div>
-
-            <input type="hidden" name="rating" id="rating-value" value="{{ user_review.rating|default:'' }}">
-
-            <textarea name="comment" class="form-control mb-3" rows="3"
-                placeholder="Write a short review (optional)">{{ user_review.comment|default:'' }}</textarea>
-
-            <button class="btn btn-success btn-sm" id="submit-rating" disabled>
-                Submit Rating
-            </button>
-        </form>
-        {% else %}
-        <p><a href="{% url 'login' %}">Login</a> to rate this product.</p>
-        {% endif %}
-
-        <form method="POST" action="{% url 'add_to_cart' product.id %}" class="d-inline">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-dark">Add to Cart</button>
-        </form>
-
-        {% if user.is_authenticated %}
-        <form method="POST" action="{% url 'add_to_wishlist' product.id %}" class="d-inline">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-danger">Add to Wishlist</button>
-        </form>
-        {% endif %}
-
-    </div>
-
-</div>
-
-<!-- ✅ Reviews Section -->
-<hr>
-
-<h4 class="mt-4">Customer Reviews</h4>
-
-{% for review in reviews %}
-<div class="card p-3 mb-3 shadow-sm">
-
-    <div class="mb-1 text-warning">
-        {% for i in "12345" %}
-            {% if forloop.counter <= review.rating %}
-                ★
-            {% else %}
-                ☆
-            {% endif %}
-        {% endfor %}
-    </div>
-
-    {% if review.comment %}
-        <p class="mb-1">{{ review.comment }}</p>
+    <!-- WISHLIST -->
+    {% if user.is_authenticated %}
+    <form method="POST" action="/add-to-wishlist/{{ product.id }}/">
+      {% csrf_token %}
+      <button class="btn btn-outline-danger w-100" style="padding:12px; display:flex; align-items:center; justify-content:center; gap:8px; font-weight:600;">
+        ❤️ Add to Wishlist
+      </button>
+    </form>
     {% endif %}
 
-    <small class="text-muted">
-        👤 {{ review.user.username }} • {{ review.created_at|date:"M d, Y" }}
-    </small>
+    <!-- TRUST BADGES -->
+    <div class="d-flex flex-wrap gap-3 mt-4">
+      <div class="glass px-3 py-2 text-center" style="flex:1; min-width:100px;">
+        <div style="font-size:1.2rem;">🚚</div>
+        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Fast Delivery</div>
+      </div>
+      <div class="glass px-3 py-2 text-center" style="flex:1; min-width:100px;">
+        <div style="font-size:1.2rem;">🔒</div>
+        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Secure Payment</div>
+      </div>
+      <div class="glass px-3 py-2 text-center" style="flex:1; min-width:100px;">
+        <div style="font-size:1.2rem;">↩️</div>
+        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Easy Returns</div>
+      </div>
+    </div>
+
+  </div>
 
 </div>
 
-{% empty %}
-<p class="text-muted">No reviews yet. Be the first to review!</p>
-{% endfor %}
+<!-- DESCRIPTION -->
+<div class="glass p-4 mb-5">
+  <h5 class="mb-3" style="font-family:'Syne',sans-serif;">📋 Product Description</h5>
+  <p class="product-description-text">{{ product.description }}</p>
+</div>
+
+<!-- REVIEWS -->
+<div class="section-header mb-4">
+  <h4 style="font-family:'Syne',sans-serif; font-size:1.2rem;">⭐ Customer Reviews</h4>
+</div>
+
+<div class="row g-3">
+  {% for review in reviews %}
+  <div class="col-md-6">
+    <div class="review-card">
+
+      <!-- Stars -->
+      <div class="text-warning mb-2" style="font-size:0.95rem;">
+        {% for i in "12345" %}
+          {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+        {% endfor %}
+      </div>
+
+      {% if review.comment %}
+        <p style="color:var(--text-secondary); margin-bottom:0.75rem; font-size:0.9rem;">{{ review.comment }}</p>
+      {% endif %}
+
+      <small style="color:var(--text-muted); font-size:0.78rem;">
+        👤 {{ review.user.username }} &bull; {{ review.created_at|date:"M d, Y" }}
+      </small>
+
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12">
+    <div class="empty-state" style="padding:40px 20px;">
+      <span style="font-size:2.5rem; display:block; margin-bottom:0.8rem; opacity:0.4;">💬</span>
+      <p class="text-muted">No reviews yet. Be the first to review!</p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
 
 {% endblock %}

@@ -3,38 +3,55 @@
 {% block title %}Complete Payment | ElectroStore{% endblock %}
 
 {% block content %}
+
 <div class="row justify-content-center">
-    <div class="col-lg-7">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body p-4 p-md-5">
-                <h2 class="h3 mb-2">Complete your payment</h2>
-                <p class="text-muted mb-4">Razorpay test checkout is ready for this order.</p>
+  <div class="col-lg-6 col-md-8">
 
-                <div class="rounded border p-3 bg-light mb-4">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">Amount</span>
-                        <strong>Rs. {{ total_rupees }}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <span class="text-muted">Razorpay Order ID</span>
-                        <code>{{ payment_id }}</code>
-                    </div>
-                </div>
+    <div class="payment-card p-4 p-md-5">
 
-                <div id="payment-help" class="alert alert-warning d-none" role="alert"></div>
+      <!-- Header -->
+      <div class="text-center mb-4">
+        <span style="font-size:2.5rem; display:block; margin-bottom:0.8rem;">🔒</span>
+        <h3 style="font-family:'Syne',sans-serif; font-weight:800;">Complete Payment</h3>
+        <p class="text-muted" style="font-size:0.9rem;">Secure checkout powered by Razorpay</p>
+      </div>
 
-                <div class="d-flex gap-2 flex-wrap">
-                    <button id="pay-btn" class="btn btn-primary">Pay with Razorpay</button>
-                    <a href="{% url 'cart' %}" class="btn btn-outline-secondary">Back to cart</a>
-                </div>
-
-                <p class="small text-muted mt-4 mb-0">
-                    If Razorpay says international cards are not supported in test mode, use Razorpay's Indian
-                    test cards or test UPI IDs, or enable international cards in your Razorpay dashboard.
-                </p>
-            </div>
+      <!-- Summary -->
+      <div class="payment-summary mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span style="color:var(--text-muted); font-size:0.9rem;">Amount</span>
+          <strong style="font-family:'Syne',sans-serif; font-size:1.3rem; color:var(--accent);">
+            ₹{{ total_rupees }}
+          </strong>
         </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span style="color:var(--text-muted); font-size:0.85rem;">Razorpay Order ID</span>
+          <code style="color:var(--text-secondary); font-size:0.8rem; background:rgba(255,255,255,0.04); padding:4px 8px; border-radius:6px;">
+            {{ payment_id }}
+          </code>
+        </div>
+      </div>
+
+      <!-- Alert -->
+      <div id="payment-help" class="alert alert-warning d-none mb-3" role="alert"></div>
+
+      <!-- Buttons -->
+      <div class="d-flex gap-3 flex-wrap">
+        <button id="pay-btn" class="btn btn-primary flex-fill accent-glow" style="padding:14px; font-size:1rem;">
+          💳 Pay with Razorpay
+        </button>
+        <a href="{% url 'cart' %}" class="btn btn-outline-secondary" style="padding:14px 20px;">
+          ← Back
+        </a>
+      </div>
+
+      <!-- Note -->
+      <p style="font-size:0.78rem; color:var(--text-muted); margin-top:1.5rem; text-align:center; line-height:1.6;">
+        For test mode, use Razorpay Indian test cards or test UPI IDs, or enable international cards in your Razorpay dashboard.
+      </p>
+
     </div>
+  </div>
 </div>
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -59,13 +76,8 @@ document.addEventListener('DOMContentLoaded', function () {
         notes: {
             customer: "{{ request.user.username|escapejs }}"
         },
-        retry: {
-            enabled: true,
-            max_count: 2
-        },
-        theme: {
-            color: "#1f3b84"
-        },
+        retry: { enabled: true, max_count: 2 },
+        theme: { color: "#00e6ff" },
         handler: function (response) {
             const params = new URLSearchParams({
                 payment_id: response.razorpay_payment_id,
@@ -82,9 +94,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const error = response.error || {};
         const description = error.description || 'Payment could not be completed. Please try again.';
         const extraHelp = description.includes('International cards are not supported')
-            ? ' For test mode, use Razorpay test instruments or enable international cards on the account.'
+            ? ' For test mode, use Razorpay test instruments or enable international cards.'
             : '';
-
         console.error('Razorpay payment failed:', error);
         paymentHelp.textContent = description + extraHelp;
         paymentHelp.classList.remove('d-none');
@@ -97,4 +108,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+
 {% endblock %}

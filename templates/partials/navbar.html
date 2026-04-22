@@ -1,13 +1,21 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg">
   <div class="container">
-    <a class="navbar-brand" href="/">ElectroStore</a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+    <!-- Brand -->
+    <a class="navbar-brand" href="/">
+      <span class="brand-icon">⚡</span>
+      ElectroStore
+    </a>
+
+    <!-- Toggle -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
+    <!-- Navbar Content -->
     <div class="collapse navbar-collapse" id="navbarNav">
-      
+
       <!-- Left Menu -->
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
@@ -19,64 +27,45 @@
       </ul>
 
       <!-- Right Menu -->
-      <ul class="navbar-nav align-items-center">
+      <ul class="navbar-nav ms-auto align-items-center gap-1">
 
-  {% if user.is_authenticated %}
+        {% if user.is_authenticated %}
 
-    <!-- 👤 Username -->
-    <li class="nav-item">
-      <span class="nav-link text-white">
-        👋 Hi, {{ user.username }}
-      </span>
-    </li>
+          <li class="nav-item">
+            <span class="nav-link fw-semibold">👋 {{ user.username }}</span>
+          </li>
 
-    <!-- 🛒 Cart Icon -->
-    <li class="nav-item">
-      <a class="nav-link position-relative" href="/cart/">
-        🛒 Cart
+          <li class="nav-item">
+            <a class="nav-link" href="/cart/">🛒 Cart</a>
+          </li>
 
-        {% if request.session.cart %}
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-          {{ request.session.cart|length }}
-        </span>
+          <li class="nav-item">
+            <a class="nav-link" href="/profile/">Profile</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="/orders/">Orders</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-danger" href="/logout/">Logout</a>
+          </li>
+
+        {% else %}
+
+          <li class="nav-item">
+            <a class="nav-link" href="/login/">Login</a>
+          </li>
+
+          <li class="nav-item">
+            <a href="/register/" class="btn btn-success btn-sm ms-2" style="padding:8px 20px; color:#041a0a !important;">
+              Register
+            </a>
+          </li>
+
         {% endif %}
-      </a>
-    </li>
 
-    <!-- Wishlist -->
-    <li class="nav-item">
-      <a class="nav-link" href="/wishlist/">Wishlist</a>
-    </li>
-
-    <!-- Orders -->
-    <li class="nav-item">
-      <a class="nav-link" href="/orders/">Orders</a>
-    </li>
-
-    <!-- Profile -->
-    <li class="nav-item">
-      <a class="nav-link" href="/profile/">Profile</a>
-    </li>
-
-    <!-- Logout -->
-    <li class="nav-item">
-      <a class="nav-link text-danger" href="/logout/">Logout</a>
-    </li>
-
-  {% else %}
-
-    <li class="nav-item">
-      <a class="nav-link" href="/login/">Login</a>
-    </li>
-
-    <li class="nav-item">
-      <a class="nav-link" href="/register/">Register</a>
-    </li>
-
-  {% endif %}
-
-</ul>
-
+      </ul>
     </div>
   </div>
 </nav>

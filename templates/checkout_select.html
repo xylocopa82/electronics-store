@@ -1,24 +1,48 @@
 {% extends 'base.html' %}
 
+{% block title %}Select Address | ElectroStore{% endblock %}
+
 {% block content %}
 
-<h2>Select Delivery Address</h2>
+<div class="row justify-content-center">
+  <div class="col-lg-7">
 
-<form method="POST">
-    {% csrf_token %}
-
-    {% for addr in addresses %}
-    <div class="card p-3 mb-2">
-        <input type="radio" name="address" value="{{ addr.id }}" required>
-
-        <strong>{{ addr.name }}</strong><br>
-        {{ addr.address_line }}<br>
-        {{ addr.city }}, {{ addr.state }} - {{ addr.pincode }}
+    <div class="section-header mb-4">
+      <h2>📍 Select Delivery Address</h2>
     </div>
-    {% endfor %}
 
-    <button class="btn btn-success">Place Order</button>
+    <form method="POST">
+      {% csrf_token %}
 
-</form>
+      <div class="d-flex flex-column gap-3 mb-4">
+        {% for addr in addresses %}
+        <label class="address-radio-card d-flex align-items-start gap-3" style="cursor:pointer;">
+          <input type="radio" name="address" value="{{ addr.id }}" required
+                 style="margin-top:4px; accent-color:var(--accent);">
+          <div>
+            <strong style="color:var(--text-primary); font-size:0.95rem;">{{ addr.name }}</strong><br>
+            <span style="color:var(--text-secondary); font-size:0.88rem; line-height:1.8;">
+              {{ addr.address_line }}<br>
+              {{ addr.city }}, {{ addr.state }} — {{ addr.pincode }}
+            </span>
+          </div>
+        </label>
+        {% empty %}
+        <div class="glass p-4 text-center">
+          <p class="text-muted mb-3">No saved addresses. Please add one in your profile.</p>
+          <a href="/profile/" class="btn btn-dark">Go to Profile</a>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% if addresses %}
+      <button class="btn btn-success w-100" style="padding:14px; font-size:1rem;">
+        ✅ Place Order
+      </button>
+      {% endif %}
+    </form>
+
+  </div>
+</div>
 
 {% endblock %}

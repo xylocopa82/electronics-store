@@ -19,7 +19,11 @@ def create_test_image():
     return SimpleUploadedFile('product.jpg', b'filecontent', content_type='image/jpeg')
 
 
-@override_settings(MEDIA_ROOT=TEST_MEDIA_ROOT)
+@override_settings(
+    MEDIA_ROOT=TEST_MEDIA_ROOT,
+    RAZORPAY_KEY_ID='rzp_test_key',
+    RAZORPAY_KEY_SECRET='test_secret',
+)
 class ProductFlowTests(TestCase):
     @classmethod
     def tearDownClass(cls):

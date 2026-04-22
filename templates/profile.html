@@ -1,134 +1,116 @@
 {% extends 'base.html' %}
 
+{% block title %}My Profile | ElectroStore{% endblock %}
+
 {% block content %}
 
-<div class="container mt-4">
+<div class="section-header mb-4">
+  <h2>👤 My Profile</h2>
+</div>
 
-    <h2 class="mb-4">My Profile</h2>
+<div class="row g-4">
 
-    <div class="row">
+  <!-- LEFT: User Info Card -->
+  <div class="col-md-4 col-lg-3">
+    <div class="glass p-4 text-center" style="position:sticky; top:90px;">
 
-        <!-- LEFT: Profile Card -->
-        <div class="col-md-4">
-            <div class="card shadow-sm p-3 text-center">
-
-                {% if form.instance.profile_image %}
-                    <img src="{{ form.instance.profile_image.url }}" 
-                         class="rounded-circle mb-3" 
-                         style="width:120px; height:120px; object-fit:cover;">
-                {% else %}
-                    <img src="https://via.placeholder.com/120" 
-                         class="rounded-circle mb-3">
-                {% endif %}
-
-                <h5>{{ user.username }}</h5>
-                <p class="text-muted">{{ user.email }}</p>
-
-            </div>
+      {% if form.instance.profile_image %}
+        <img src="{{ form.instance.profile_image.url }}"
+             class="profile-avatar mb-3"
+             alt="Profile">
+      {% else %}
+        <div class="profile-avatar d-flex align-items-center justify-content-center mb-3 mx-auto"
+             style="background:linear-gradient(135deg, var(--accent-2), var(--accent)); font-size:2rem; color:white;">
+          {{ user.username|first|upper }}
         </div>
+      {% endif %}
 
-        <!-- RIGHT: Forms -->
-        <div class="col-md-8">
+      <h5 style="font-family:'Syne',sans-serif; font-weight:700; margin-bottom:4px;">{{ user.username }}</h5>
+      <p style="color:var(--text-muted); font-size:0.85rem; margin:0;">{{ user.email }}</p>
 
-            <!-- Update Profile -->
-            <div class="card shadow-sm p-3 mb-4">
-                <h5 class="mb-3">Update Profile</h5>
+      <hr style="border-color:var(--border); margin:1.2rem 0;">
 
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-
-                    <div class="mb-3">
-                        <label class="form-label">Phone</label>
-                        {{ form.phone }}
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Profile Image</label>
-                        {{ form.profile_image }}
-                    </div>
-
-                    <button name="update_profile" class="btn btn-dark">
-                        Update Profile
-                    </button>
-                </form>
-            </div>
-
-            <!-- Add Address -->
-            <div class="card shadow-sm p-3">
-                <h5 class="mb-3">Add Address</h5>
-
-                <form method="POST">
-                    {% csrf_token %}
-
-                    <div class="row">
-                        <div class="col-md-6 mb-2">
-                            {{ address_form.name.label_tag }}
-                            {{ address_form.name }}
-                        </div>
-
-                        <div class="col-md-6 mb-2">
-                            {{ address_form.phone.label_tag }}
-                            {{ address_form.phone }}
-                        </div>
-
-                        <div class="col-md-12 mb-2">
-                            {{ address_form.address_line.label_tag }}
-                            {{ address_form.address_line }}
-                        </div>
-
-                        <div class="col-md-4 mb-2">
-                            {{ address_form.city.label_tag }}
-                            {{ address_form.city }}
-                        </div>
-
-                        <div class="col-md-4 mb-2">
-                            {{ address_form.state.label_tag }}
-                            {{ address_form.state }}
-                        </div>
-
-                        <div class="col-md-4 mb-2">
-                            {{ address_form.pincode.label_tag }}
-                            {{ address_form.pincode }}
-                        </div>
-                    </div>
-
-                    <button name="add_address" class="btn btn-primary">
-                        Add Address
-                    </button>
-                </form>
-            </div>
-
-        </div>
+      <a href="/orders/" class="btn btn-dark w-100 btn-sm mb-2">📦 My Orders</a>
+      <a href="/wishlist/" class="btn btn-outline-secondary w-100 btn-sm">❤️ Wishlist</a>
 
     </div>
+  </div>
 
-    <!-- Address List -->
-    <div class="mt-4">
-        <h5>Your Addresses</h5>
+  <!-- RIGHT: Forms -->
+  <div class="col-md-8 col-lg-9">
 
-        <div class="row">
-            {% for addr in addresses %}
-            <div class="col-md-4">
-                <div class="card p-3 mb-3 shadow-sm">
+    <!-- Profile Update -->
+    <div class="glass p-4 mb-4">
+      <h5 style="font-family:'Syne',sans-serif; margin-bottom:1.5rem;">✏️ Update Profile</h5>
 
-                    <strong>{{ addr.name }}</strong><br>
-                    {{ addr.address_line }}<br>
-                    {{ addr.city }}, {{ addr.state }}<br>
-                    {{ addr.pincode }}<br>
-                    📞 {{ addr.phone }}
-
-                    {% if addr.is_default %}
-                        <span class="badge bg-success mt-2">Default</span>
-                    {% endif %}
-
-                </div>
-            </div>
-            {% empty %}
-            <p class="text-muted">No addresses added</p>
-            {% endfor %}
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
+          {% for field in form %}
+          <div class="col-md-6">
+            <label class="form-label">{{ field.label }}</label>
+            {{ field }}
+          </div>
+          {% endfor %}
         </div>
+        <button name="update_profile" class="btn btn-dark mt-4" style="padding:12px 28px;">
+          Save Changes
+        </button>
+      </form>
     </div>
 
+    <!-- Add Address -->
+    <div class="glass p-4">
+      <h5 style="font-family:'Syne',sans-serif; margin-bottom:1.5rem;">➕ Add Address</h5>
+
+      <form method="POST">
+        {% csrf_token %}
+        <div class="row g-3">
+          {% for field in address_form %}
+          <div class="col-md-6">
+            <label class="form-label">{{ field.label }}</label>
+            {{ field }}
+          </div>
+          {% endfor %}
+        </div>
+        <button name="add_address" class="btn btn-primary mt-4" style="padding:12px 28px;">
+          Add Address
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ADDRESS LIST -->
+<div class="mt-5">
+  <div class="section-header mb-3">
+    <h5 style="font-family:'Syne',sans-serif; font-size:1rem;">📍 Your Addresses</h5>
+  </div>
+
+  <div class="row g-3">
+    {% for addr in addresses %}
+    <div class="col-md-4 col-sm-6">
+      <div class="address-card">
+        <strong style="color:var(--text-primary);">{{ addr.name }}</strong>
+        <div style="color:var(--text-secondary); font-size:0.88rem; margin-top:6px; line-height:1.8;">
+          {{ addr.address_line }}<br>
+          {{ addr.city }}, {{ addr.state }}<br>
+          {{ addr.pincode }}<br>
+          📞 {{ addr.phone }}
+        </div>
+        {% if addr.is_default %}
+          <span class="badge bg-success mt-2">Default</span>
+        {% endif %}
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <p class="text-muted">No addresses saved yet.</p>
+    </div>
+    {% endfor %}
+  </div>
 </div>
 
 {% endblock %}

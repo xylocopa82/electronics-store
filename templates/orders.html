@@ -1,34 +1,49 @@
 {% extends 'base.html' %}
 
+{% block title %}My Orders | ElectroStore{% endblock %}
+
 {% block content %}
 
-<h2>My Orders</h2>
+<div class="section-header mb-4">
+  <h2>📦 My Orders</h2>
+</div>
 
-<table class="table">
-    <tr>
-        <th>Product</th>
-        <th>Quantity</th>
-        <th>Total</th>
-        <th>Status</th>
-        <th>Date</th>
-    </tr>
-
-    {% for order in orders %}
-    <tr>
-        <td>{{ order.product.name }}</td>
-        <td>{{ order.quantity }}</td>
-        <td>₹{{ order.total_price }}</td>
-        <td>
+{% if orders %}
+<div class="cart-table-wrap">
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td style="color:var(--text-primary); font-weight:600;">{{ order.product.name }}</td>
+          <td style="color:var(--text-secondary);">{{ order.quantity }}</td>
+          <td style="color:var(--accent); font-weight:700; font-family:'Syne',sans-serif;">₹{{ order.total_price }}</td>
+          <td>
             <span class="badge bg-info">{{ order.status }}</span>
-        </td>
-        <td>{{ order.order_date }}</td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="5">No orders yet</td>
-    </tr>
-    {% endfor %}
-
-</table>
+          </td>
+          <td style="color:var(--text-muted); font-size:0.85rem;">{{ order.order_date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="empty-state">
+  <span class="empty-icon">📦</span>
+  <h4>No orders yet</h4>
+  <p class="text-muted mb-4">You haven't placed any orders yet.</p>
+  <a href="/products/" class="btn btn-primary">Start Shopping</a>
+</div>
+{% endif %}
 
 {% endblock %}

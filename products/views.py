@@ -7,13 +7,55 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-import razorpay
-from razorpay.errors import BadRequestError, GatewayError, ServerError, SignatureVerificationError
+from types import SimpleNamespace
+
 from accounts.models import Address
 from orders.models import Order
 from .models import Product, Review
-from django.views.decorators.csrf import csrf_exempt
-from django.db import transaction
+
+
+class RazorpayUnavailableError(Exception):
+    pass
+
+
+try:
+    import razorpay
+    from razorpay.errors import (
+        BadRequestError,
+        GatewayError,
+        ServerError,
+        SignatureVerificationError,
+    )
+except ImportError:
+    class BadRequestError(Exception):
+        pass
+
+    class GatewayError(Exception):
+        pass
+
+    class ServerError(Exception):
+        pass
+
+    class SignatureVerificationError(Exception):
+        pass
+
+    def _missing_razorpay_client(*args, **kwargs):
+        raise RazorpayUnavailableError(
+            'Razorpay SDK is not installed. Install project dependencies with '
+            '`pip install -r requirements.txt` and try again.'
+        )
+
+    razorpay = SimpleNamespace(Client=_missing_razorpay_client)
+
+
+def _get_razorpay_client():
+    if not settings.RAZORPAY_KEY_ID or not settings.RAZORPAY_KEY_SECRET:
+        raise RazorpayUnavailableError(
+            'Razorpay credentials are not configured. Set RAZORPAY_KEY_ID and '
+            'RAZORPAY_KEY_SECRET and try again.'
+        )
+
+    return razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
 def _get_cart_items(request):
     raw_cart = request.session.get('cart', {})
@@ -183,11 +225,11 @@ def checkout(request):
         if not _cart_has_available_stock(request, products):
             return _render_checkout_selection(request, addresses, products, total)
 
-        amount_paise = int(total * 100)
-        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
         receipt = f"order_{request.user.id}_{timezone.now().strftime('%Y%m%d%H%M%S%f')}"[:40]
 
         try:
+            amount_paise = int(total * 100)
+            client = _get_razorpay_client()
             payment = client.order.create(
                 {
                     'amount': amount_paise,
@@ -197,6 +239,9 @@ def checkout(request):
             )
         except (BadRequestError, GatewayError, ServerError) as exc:
             messages.error(request, f'Unable to start Razorpay checkout: {exc}')
+            return _render_checkout_selection(request, addresses, products, total)
+        except RazorpayUnavailableError as exc:
+            messages.error(request, str(exc))
             return _render_checkout_selection(request, addresses, products, total)
         except Exception:
             messages.error(request, 'Unable to connect to Razorpay right now. Please try again.')
@@ -262,8 +307,6 @@ def add_review(request, id):
 @csrf_exempt
 @login_required
 def payment_success(request):
-    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-
     payment_id = request.GET.get('payment_id')
     order_id = request.GET.get('order_id')
     signature = request.GET.get('signature')
@@ -273,15 +316,17 @@ def payment_success(request):
 
     # 🔒 Step 1: Validate request data
     if not all([payment_id, order_id, signature, expected_order_id, address_id]):
-        messages.error(request, 'Invalid payment data. Please try again.')
+        messages.error(request, 'Invalid payment data.')
         return render(request, 'payment_failed.html', status=400)
 
+    # 🔒 Step 2: Verify order ID match
     if order_id != expected_order_id:
         messages.error(request, 'Order mismatch detected.')
         return render(request, 'payment_failed.html', status=400)
 
-    # 🔒 Step 2: Verify signature
+    # 🔒 Step 3: Verify Razorpay signature
     try:
+        client = _get_razorpay_client()
         client.utility.verify_payment_signature({
             'razorpay_payment_id': payment_id,
             'razorpay_order_id': order_id,
@@ -291,24 +336,22 @@ def payment_success(request):
         messages.error(request, 'Payment verification failed.')
         return render(request, 'payment_failed.html', status=400)
 
-    # 🔒 Step 3: Get cart items
+    # 🔒 Step 4: Get cart items  ← (THIS IS WHERE STEP 4 STARTS)
     cart_items, _ = _get_cart_items(request)
 
     if not cart_items:
         messages.error(request, 'Your cart is empty.')
         return redirect('cart')
 
-    # 🔒 Step 4: Check stock again
+    # 🔒 Step 5: Check stock again ← (THIS IS YOUR CURRENT STEP 4)
     if not _cart_has_available_stock(request, cart_items):
-        messages.error(
-            request,
-            'Payment successful but items are out of stock. Please contact support.'
-        )
+        messages.error(request, 'Items out of stock.')
         return render(request, 'payment_failed.html', status=409)
 
+    # 🔒 Step 6: Get address
     address = get_object_or_404(Address, id=address_id, user=request.user)
 
-    # 🔒 Step 5: Create orders safely
+    # 🔒 Step 7: Create orders safely
     with transaction.atomic():
         for product in cart_items:
             Order.objects.create(
@@ -322,13 +365,11 @@ def payment_success(request):
             product.stock -= product.qty
             product.save(update_fields=['stock'])
 
-    # 🔒 Step 6: Clear session
+    # 🔒 Step 8: Clear session
     request.session['cart'] = {}
     request.session.pop('address_id', None)
     request.session.pop('payment_order_id', None)
     request.session.pop('payment_amount', None)
 
-    # ✅ Step 7: Success page
-    return render(request, 'checkout.html', {
-        'success': True
-    })
+    # ✅ Step 9: Success response
+    return render(request, 'checkout.html', {'success': True})

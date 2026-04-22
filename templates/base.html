@@ -1,44 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{% block meta_description %}Buy latest electronics and gadgets online{% endblock %}">
-    <title>{% block title %}ElectroStore{% endblock %}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{% block meta_description %}Buy latest electronics and gadgets online{% endblock %}">
+  <title>{% block title %}ElectroStore{% endblock %}</title>
 
-    {% load static %}
+  {% load static %}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 
 <body>
-    {% include 'partials/navbar.html' %}
 
-    <div class="container mt-4">
-        {% if messages %}
-            <div class="mb-3">
-                {% for message in messages %}
-                    <div
-                        class="alert {% if message.level_tag == 'error' %}alert-danger{% else %}alert-{{ message.tags|default:'info' }}{% endif %} mb-2"
-                        role="alert"
-                    >
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+  {% include 'partials/navbar.html' %}
 
-        {% block content %}
-        {% endblock %}
+  <div class="container mt-4 mb-5">
+
+    {% if messages %}
+    <div class="mb-4">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} d-flex align-items-center gap-2">
+          {% if message.tags == 'success' %}✅{% elif message.tags == 'error' or message.tags == 'danger' %}❌{% elif message.tags == 'warning' %}⚠️{% else %}ℹ️{% endif %}
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
     </div>
+    {% endif %}
 
-    {% include 'partials/footer.html' %}
+    {% block content %}
+    {% endblock %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-document.addEventListener('DOMContentLoaded', function () {
+  </div>
 
+  {% include 'partials/footer.html' %}
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+
+    // ===== Star Rating =====
     const stars = document.querySelectorAll('.star');
     const ratingInput = document.getElementById('rating-value');
     const submitBtn = document.getElementById('submit-rating');
@@ -48,47 +54,43 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentRating = ratingInput.value || 0;
 
     function highlightStars(rating) {
-        stars.forEach((star, index) => {
-            if (index < rating) {
-                star.classList.add('active');
-            } else {
-                star.classList.remove('active');
-            }
-        });
+      stars.forEach((star, index) => {
+        star.classList.toggle('active', index < rating);
+      });
     }
 
-    // Initial load
     highlightStars(currentRating);
 
     stars.forEach((star, index) => {
-
-        // Hover effect
-        star.addEventListener('mouseover', function () {
-            highlightStars(index + 1);
-        });
-
-        // Click event
-        star.addEventListener('click', function () {
-    currentRating = index + 1;
-    ratingInput.value = currentRating;
-    highlightStars(currentRating);
-
-    if (submitBtn) {
-        submitBtn.disabled = false;   // ✅ enable button
-    }
-});
-
-        // Reset after hover
-        star.addEventListener('mouseout', function () {
-            highlightStars(currentRating);
-            if (submitBtn && currentRating > 0) {
-    submitBtn.disabled = false;
-}
-        });
-
+      star.addEventListener('mouseover', () => highlightStars(index + 1));
+      star.addEventListener('mouseout', () => highlightStars(currentRating));
+      star.addEventListener('click', () => {
+        currentRating = index + 1;
+        ratingInput.value = currentRating;
+        highlightStars(currentRating);
+        if (submitBtn) submitBtn.disabled = false;
+      });
     });
 
-});
-</script>
+    // ===== Animate elements on scroll =====
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.product-card, .review-card, .address-card').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      observer.observe(el);
+    });
+
+  });
+  </script>
+
 </body>
 </html>

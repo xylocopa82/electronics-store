@@ -17,6 +17,31 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+def load_local_env():
+    env_path = BASE_DIR / '.env'
+    if not env_path.exists():
+        return
+
+    for line in env_path.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith('#') or '=' not in line:
+            continue
+
+        key, value = line.split('=', 1)
+        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+load_local_env()
+
+
+def get_csv_env(name, default=''):
+    return [
+        value.strip()
+        for value in os.environ.get(name, default).split(',')
+        if value.strip()
+    ]
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
@@ -29,11 +54,21 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in {'1', 'true', 'yes', 'on'}
 
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
-    if host.strip()
+ALLOWED_HOSTS = get_csv_env('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,[::1]')
+
+_LOCAL_DEV_CSRF_ORIGINS = []
+for port in range(8000, 8011):
+    _LOCAL_DEV_CSRF_ORIGINS.extend([
+        f'http://localhost:{port}',
+        f'http://127.0.0.1:{port}',
+    ])
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
 ]
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
 
 
 # Application definition
@@ -137,10 +172,20 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 LOGIN_URL = '/login/'
-
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "http://localhost:8000"
+]
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = True
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 if not DEBUG:
     SECURE_HSTS_SECONDS = int(os.environ.get('DJANGO_SECURE_HSTS_SECONDS', '31536000'))
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
@@ -154,5 +199,5 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
-RAZORPAY_KEY_ID = 'rzp_test_SXVYwEtpuXhwxt'
-RAZORPAY_KEY_SECRET = 'YPuPV75X7zl1lob2YonXbOFg'
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', '')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', '')

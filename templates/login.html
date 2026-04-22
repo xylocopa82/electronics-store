@@ -1,14 +1,45 @@
 {% extends 'base.html' %}
+
+{% block title %}Login | ElectroStore{% endblock %}
+
 {% block content %}
 
-<h2>Login</h2>
+<div class="auth-wrapper">
+  <div class="auth-card">
 
-<form method="POST">
-    {% csrf_token %}
-    <input type="hidden" name="next" value="{{ next_url }}">
-    <input type="text" name="username" placeholder="Username" class="form-control mb-2">
-    <input type="password" name="password" placeholder="Password" class="form-control mb-2">
-    <button class="btn btn-dark">Login</button>
-</form>
+    <!-- Logo -->
+    <div class="text-center mb-4">
+      <span style="font-size:2rem;">⚡</span>
+      <h3 class="mt-2">Welcome Back</h3>
+      <p class="text-muted" style="font-size:0.9rem;">Sign in to your account</p>
+    </div>
+
+    <form method="POST">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label class="form-label">Username</label>
+        <input type="text" name="username" class="form-control" placeholder="Enter your username" required autofocus>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
+      </div>
+
+      <button class="btn btn-primary w-100" style="padding:13px; font-size:1rem;">
+        Sign In &nbsp;→
+      </button>
+    </form>
+
+    <hr style="border-color:var(--border); margin:1.5rem 0;">
+
+    <p class="text-center mb-0" style="font-size:0.9rem; color:var(--text-muted);">
+      Don't have an account?
+      <a href="{% url 'register' %}" style="color:var(--accent); font-weight:600;">Register here</a>
+    </p>
+
+  </div>
+</div>
 
 {% endblock %}

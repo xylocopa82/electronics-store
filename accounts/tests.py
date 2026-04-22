@@ -25,11 +25,14 @@ class AuthViewTests(TestCase):
 
         self.assertRedirects(response, reverse('home'), fetch_redirect_response=False)
 
-    def test_logout_requires_post(self):
+    def test_logout_page_renders_and_post_logs_out(self):
         self.client.force_login(self.user)
 
         get_response = self.client.get(reverse('logout'))
-        self.assertEqual(get_response.status_code, 405)
+        self.assertEqual(get_response.status_code, 200)
+        self.assertTemplateUsed(get_response, 'logout.html')
+        self.assertContains(get_response, 'Log out of ElectroStore?')
+        self.assertIn('_auth_user_id', self.client.session)
 
         post_response = self.client.post(reverse('logout'))
         self.assertRedirects(post_response, reverse('home'), fetch_redirect_response=False)
