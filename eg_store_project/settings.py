@@ -79,9 +79,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',           # Move here - BEFORE staticfiles
     'django.contrib.staticfiles',
-    'cloudinary',                   # Move here - AFTER staticfiles
+    'storages',
     'accounts',
     'products',
     'orders',
@@ -182,10 +181,13 @@ cloudinary.config(
     api_secret=os.environ.get('CLOUDINARY_API_SECRET'),
 )
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.cloudinary.CloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
 }
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
