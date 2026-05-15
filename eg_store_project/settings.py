@@ -85,10 +85,10 @@ INSTALLED_APPS = [
     'orders',
     'wishlist',
     'warranty',
-    'django.contrib.sitemaps'
+    'django.contrib.sitemaps',
     'cloudinary',
     'cloudinary_storage',
-    ]
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
