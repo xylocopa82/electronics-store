@@ -182,6 +182,8 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+print("STORAGES LOADED:", STORAGES)  # Add this line
+
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
