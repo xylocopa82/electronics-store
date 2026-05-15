@@ -215,12 +215,3 @@ RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', '')
 RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', '')
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-STORAGES = {
-    "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
