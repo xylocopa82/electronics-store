@@ -125,8 +125,6 @@ WSGI_APPLICATION = 'eg_store_project.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 import dj_database_url
-import cloudinary
-import cloudinary_storage
 DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get('DATABASE_URL'),
